@@ -22,5 +22,11 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-add_subdirectory(qt6)
-add_subdirectory(opencv-cm)
+find_package(OpenCV REQUIRED)
+
+set(LIB_NAME opencv_lib)
+
+add_library(${LIB_NAME} INTERFACE)
+
+target_link_libraries(${LIB_NAME} INTERFACE ${OpenCV_LIBS})
+target_include_directories(${LIB_NAME} INTERFACE ${OpenCV_INCLUDE_DIRS})
