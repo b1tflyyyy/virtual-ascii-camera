@@ -22,13 +22,20 @@
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 
-#include <linux/videodev2.h>
+#include <virtual-camera.hpp>
 
 int main(int argc, char** argv)
 {
     QGuiApplication app{ argc, argv };
     QQmlApplicationEngine engine{};
+
+    auto* ctx{ engine.rootContext() };
+
+    VirtualCameraController virtual_camera_controller{};
+    
+    ctx->setContextProperty("virtualCameraController", &virtual_camera_controller);
 
     const QUrl& url{ QStringLiteral("qrc:/main-window/MainWindow.qml") };
     engine.load(url);
