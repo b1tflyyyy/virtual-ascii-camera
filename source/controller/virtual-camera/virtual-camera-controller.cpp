@@ -20,16 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include "virtual-camera.hpp"
+#include "virtual-camera-controller.hpp"
 
-VirtualCameraController::VirtualCameraController(QObject* parent) :
-    QObject{ parent }
+VirtualCameraController::VirtualCameraController(VirtualCameraModel& virtual_camera_model, QObject* parent) :
+    QObject{ parent }, mVirtualCameraModel{ virtual_camera_model }, mV4L2CXXWrapper{ }
 { }
 
 bool VirtualCameraController::TryConnectToDevice(const QString& device)
 {
     const auto& std_string{ device.toStdString() };
-    return mV4L2CXXWrapper.TryOpenDevice(std::data(std_string));
+    const auto result{ mV4L2CXXWrapper.TryOpenDevice(std_string) };
+    
+    mVirtualCameraModel.SetConnectionStatus(result);
+    return result;
+}
+
+bool VirtualCameraController::TryDisconnectFromDevice()
+{
+    const auto result{ mV4L2CXXWrapper.TryCloseDevice() };
+
+    mVirtualCameraModel.SetConnectionStatus(!result); // if success, set connection status to false
+    return result;
 }
 
 bool VirtualCameraController::SetupVideoFormat(const std::int32_t frame_width, const std::int32_t frame_height)
