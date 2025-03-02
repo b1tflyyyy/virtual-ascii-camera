@@ -28,16 +28,26 @@ V4L2CXXWrapper::V4L2CXXWrapper() :
 
 V4L2CXXWrapper::~V4L2CXXWrapper() noexcept
 {
-    if (mFileDescriptor != -1)
-    {
-        close(mFileDescriptor);
-    }
+    (void) TryCloseDevice();
 }
 
 bool V4L2CXXWrapper::TryOpenDevice(std::string_view device)
 {
     mFileDescriptor = open(std::data(device), O_WRONLY);
     return !(mFileDescriptor < 0);    
+}
+
+bool V4L2CXXWrapper::TryCloseDevice() noexcept
+{
+    if (mFileDescriptor < 0)
+    {
+        return false;
+    }
+
+    close(mFileDescriptor);
+    mFileDescriptor = -1;
+
+    return true;
 }
 
 bool V4L2CXXWrapper::TrySetupDeviceFormat(const v4l2_format_t& format)

@@ -42,6 +42,8 @@ public:
     ~V4L2CXXWrapper() noexcept;
 
     [[nodiscard]] bool TryOpenDevice(std::string_view device);
+    [[nodiscard]] bool TryCloseDevice() noexcept;
+
     [[nodiscard]] bool TrySetupDeviceFormat(const v4l2_format_t& format);
 
     [[nodiscard]] bool TryWriteFrame(const frame_t& frame);
