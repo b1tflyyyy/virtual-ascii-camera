@@ -2,8 +2,12 @@
     <qresource prefix = "/">
         <file>main-window/MainWindow.qml</file>
         <file>pages/main-page/MainPage.qml</file>
+        <file>dialogs/device/DeviceFailureConnection.qml</file>
+        <file>dialogs/device/DeviceFailureDisconnection.qml</file>
+        <file>dialogs/device/DeviceSuccessfulConnection.qml</file>
+        <file>dialogs/device/DeviceSuccessfulDisconnection.qml</file>
         <file>resources/write.png</file>
-        <file>resources/disruption.png</file>
-        <file>resources/link.png</file>
+        <file>resources/device-connected.png</file>
+        <file>resources/device-disconnected.png</file>
     </qresource>
 </RCC>
