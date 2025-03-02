@@ -24,7 +24,8 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
-#include <virtual-camera.hpp>
+#include <virtual-camera-controller.hpp>
+#include <virtual-camera-model.hpp>
 
 int main(int argc, char** argv)
 {
@@ -33,8 +34,10 @@ int main(int argc, char** argv)
 
     auto* ctx{ engine.rootContext() };
 
-    VirtualCameraController virtual_camera_controller{};
+    VirtualCameraModel virtual_camera_model{};
+    VirtualCameraController virtual_camera_controller{ virtual_camera_model };
     
+    ctx->setContextProperty("virtualCameraModel", &virtual_camera_model);
     ctx->setContextProperty("virtualCameraController", &virtual_camera_controller);
 
     const QUrl& url{ QStringLiteral("qrc:/main-window/MainWindow.qml") };
