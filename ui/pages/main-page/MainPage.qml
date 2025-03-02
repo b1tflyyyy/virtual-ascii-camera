@@ -1,6 +1,29 @@
+// MIT License
+// 
+// Copyright (c) 2025 @Who
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Dialogs
+
+import "../../dialogs/device"
 
 Rectangle {
     id: _mainPage
@@ -16,16 +39,24 @@ Rectangle {
         }
     }
 
-    // Success message
-    Dialog {
-        id: dialog
-        title: "Device successfully connected!"
-        standardButtons: Dialog.Ok | Dialog.Cancel
+    // Connection successful message
+    DeviceSuccessfulConnection {
+        id: _deviceSuccessfulConnection
+    }
 
-        width: parent.width * 0.40
-        height: parent.height * 0.15
+    // Connection failure message
+    DeviceFailureConnection {
+        id: _deviceFailureConnection
+    }
 
-        anchors.centerIn: parent
+    // Disconnection successful message
+    DeviceSuccessfulDisconnection {
+        id: _deviceSuccessfulDisconnection
+    }
+
+    // Disconnection failure message
+    DeviceFailureDisconnection {
+        id: _deviceFailureDisconnection
     }
 
     // Top Text Main Page
@@ -48,7 +79,7 @@ Rectangle {
         Text {
             anchors.centerIn: parent
 
-            text: "ASCII Realtime Virtual Camera"
+            text: qsTr("ASCII Realtime Virtual Camera")
 
             font {
                 bold: true
@@ -88,13 +119,15 @@ Rectangle {
 
             anchors {
                 left: _deviceStatusText.right
-                leftMargin: 15 
+                leftMargin: 10
+
+                top: _deviceStatusText.top
             }
 
             fillMode: Image.PreserveAspectFit
             height: _deviceStatusText.height
 
-            source: _connectDeviceButton.isConnected ? "qrc:/resources/link.png" : "qrc:/resources/disruption.png"
+            source: virtualCameraModel.connectionStatus ? "qrc:/resources/device-connected.png" : "qrc:/resources/device-disconnected.png"
         }
     }
 
@@ -153,7 +186,13 @@ Rectangle {
     Rectangle {
         id: _connectDeviceButton
 
-        property bool isConnected: false
+        property color buttonColor: {
+            if (!virtualCameraModel.connectionStatus) {
+                return _connectButtonMouseArea.containsMouse ? "lightgreen" : "green"
+            }
+
+            return "gray"
+        }
 
         anchors {
             left: _deviceInput.left
@@ -162,9 +201,9 @@ Rectangle {
             topMargin: 10
         }
 
-        color: _connectButtonMouseArea.containsMouse ? "lightgreen" : "green"
+        color: buttonColor
 
-        width: _deviceInput.width / 2
+        width: (_deviceInput.width - _disconnectDeviceButton.anchors.leftMargin) / 2
         height: _deviceInput.height
 
         radius: 5
@@ -182,24 +221,95 @@ Rectangle {
 
         MouseArea {
             id: _connectButtonMouseArea
+            
+            property var currentCursorShape: {
+                if (virtualCameraModel.connectionStatus) {
+                    return Qt.ArrowCursor
+                }
 
+                return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
+            }
+            
             anchors.fill: _connectDeviceButton
             hoverEnabled: true
 
-            cursorShape: containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
+            cursorShape: currentCursorShape
 
             onClicked: function() {
-                if (virtualCameraController.TryConnectToDevice(_deviceInput.text)) {
-                    dialog.open()
-                    _connectDeviceButton.isConnected = true                    
-                    console.log("connection success")
-                } else {
-                    _connectDeviceButton.isConnected = false
-                    console.log("connection failed")
-                }
-
-                console.log(_deviceInput.text)
+                if (!virtualCameraModel.connectionStatus) {
+                    console.log(_deviceInput.text)
+                    if (virtualCameraController.TryConnectToDevice(_deviceInput.text)) {
+                        _deviceSuccessfulConnection.open()                    
+                    } else {
+                        _deviceFailureConnection.open()
+                    }
+                } 
             }
         }
+    }
+
+    // Disconnect button
+    Rectangle {
+        id: _disconnectDeviceButton
+
+        property color buttonColor: {
+            if (virtualCameraModel.connectionStatus) {
+                return _disconnectButtonMouseArea.containsMouse ? "#E6676B" : "red"
+            }
+
+            return "gray"
+        }
+
+        anchors {
+            left: _connectDeviceButton.right
+            top: _connectDeviceButton.top
+
+            leftMargin: 20
+        }
+
+        color: buttonColor
+
+        width: _connectDeviceButton.width 
+        height: _connectDeviceButton.height
+
+        radius: _connectDeviceButton.radius
+
+        Text {
+            anchors.centerIn: _disconnectDeviceButton
+
+            font {
+                pointSize: 18
+            }
+
+            text: qsTr("Disconnect")
+            color: "white"
+        }
+
+        MouseArea {
+            id: _disconnectButtonMouseArea
+
+            property var currentCursorShape: {
+                if (!virtualCameraModel.connectionStatus) {
+                    return Qt.ArrowCursor
+                }
+
+                return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
+            }
+
+            anchors.fill: _disconnectDeviceButton
+            hoverEnabled: true
+
+            cursorShape: currentCursorShape
+
+            onClicked: function() {
+                if (virtualCameraModel.connectionStatus) {
+                    if (virtualCameraController.TryDisconnectFromDevice()) {
+                        _deviceSuccessfulDisconnection.open()
+                    } else {
+                        _deviceFailureDisconnection.open()
+                    }
+                }
+            }
+        }        
     }
 }
