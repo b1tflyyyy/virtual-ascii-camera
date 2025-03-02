@@ -22,7 +22,9 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-add_subdirectory(app)
-add_subdirectory(utils)
-add_subdirectory(controller)
-add_subdirectory(model)
+set(LIB_NAME virtual-camera-model-lib)
+
+add_library(${LIB_NAME} STATIC virtual-camera-model.hpp virtual-camera-model.cpp)
+
+target_include_directories(${LIB_NAME} PUBLIC ./)
+target_link_libraries(${LIB_NAME} PUBLIC qt6_lib)

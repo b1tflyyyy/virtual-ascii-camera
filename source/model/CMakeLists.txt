@@ -22,7 +22,4 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-add_subdirectory(app)
-add_subdirectory(utils)
-add_subdirectory(controller)
-add_subdirectory(model)
+add_subdirectory(virtual-camera)
