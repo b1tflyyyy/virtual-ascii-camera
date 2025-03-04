@@ -22,8 +22,13 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-add_subdirectory(app)
-add_subdirectory(utils)
-add_subdirectory(controller)
-add_subdirectory(model)
-add_subdirectory(tests)
+project(tests LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG bin/Debug)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE bin/Release)
+
+add_executable(${PROJECT_NAME} main_test.pass.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE ascii-converter-lib double-buffer-lib)
