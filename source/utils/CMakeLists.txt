@@ -23,3 +23,5 @@
 cmake_minimum_required(VERSION 3.22)
 
 add_subdirectory(v4l2-wrapper-cxx)
+add_subdirectory(double-buffer)
+add_subdirectory(ascii-converter)
