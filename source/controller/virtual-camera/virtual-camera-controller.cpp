@@ -52,7 +52,7 @@ bool VirtualCameraController::SetupVideoFormat(const std::int32_t frame_width, c
     format.fmt.pix.width = frame_width;
     format.fmt.pix.height = frame_height;
 
-    format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+    format.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY;
     format.fmt.pix.field = V4L2_FIELD_NONE;
 
     return mV4L2CXXWrapper.TrySetupDeviceFormat(format);
