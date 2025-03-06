@@ -22,7 +22,7 @@
 
 #include "virtual-camera-controller.hpp"
 
-VirtualCameraController::VirtualCameraController(VirtualCameraModel& virtual_camera_model, QObject* parent) :
+VirtualCameraController::VirtualCameraController(CommonDeviceModel& virtual_camera_model, QObject* parent) :
     QObject{ parent }, mVirtualCameraModel{ virtual_camera_model }, mV4L2CXXWrapper{ }
 { }
 

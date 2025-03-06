@@ -26,14 +26,14 @@
 
 #include <v4l2-wrapper.hpp>
 
-#include <virtual-camera-model.hpp>
+#include <common-device-model.hpp>
 
 class VirtualCameraController : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit VirtualCameraController(VirtualCameraModel& virtual_camera_model, QObject* parent = nullptr);
+    explicit VirtualCameraController(CommonDeviceModel& virtual_camera_model, QObject* parent = nullptr);
     ~VirtualCameraController() noexcept override = default;
 
     // connects to device 
@@ -46,6 +46,6 @@ public:
     Q_INVOKABLE bool SetupVideoFormat(const std::int32_t frame_width, const std::int32_t frame_height); 
 
 private:
-    VirtualCameraModel& mVirtualCameraModel;
+    CommonDeviceModel& mVirtualCameraModel;
     V4L2CXXWrapper mV4L2CXXWrapper;
 };

@@ -26,5 +26,5 @@ set(LIB_NAME virtual-camera-controller-lib)
 
 add_library(${LIB_NAME} STATIC virtual-camera-controller.cpp virtual-camera-controller.hpp)
 
-target_link_libraries(${LIB_NAME} PUBLIC qt6_lib v4l2wrapper-cxx-lib virtual-camera-model-lib)
+target_link_libraries(${LIB_NAME} PUBLIC qt6_lib v4l2wrapper-cxx-lib common-device-model-lib)
 target_include_directories(${LIB_NAME} PUBLIC ./)
