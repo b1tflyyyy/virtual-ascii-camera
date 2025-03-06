@@ -24,8 +24,10 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
+#include <common-device-model.hpp>
+
 #include <virtual-camera-controller.hpp>
-#include <virtual-camera-model.hpp>
+#include <input-video-controller.hpp>
 
 int main(int argc, char** argv)
 {
@@ -34,11 +36,17 @@ int main(int argc, char** argv)
 
     auto* ctx{ engine.rootContext() };
 
-    VirtualCameraModel virtual_camera_model{};
+    CommonDeviceModel virtual_camera_model{};
     VirtualCameraController virtual_camera_controller{ virtual_camera_model };
     
+    CommonDeviceModel input_video_model{};
+    InputVideoController input_video_controller{ input_video_model };
+
     ctx->setContextProperty("virtualCameraModel", &virtual_camera_model);
     ctx->setContextProperty("virtualCameraController", &virtual_camera_controller);
+
+    ctx->setContextProperty("inputVideoModel", &input_video_model);
+    ctx->setContextProperty("inputVideoController", &input_video_controller);
 
     const QUrl& url{ QStringLiteral("qrc:/main-window/MainWindow.qml") };
     engine.load(url);

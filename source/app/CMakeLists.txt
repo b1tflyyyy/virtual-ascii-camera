@@ -27,4 +27,4 @@ set(QML_SOURCES ${CMAKE_SOURCE_DIR}/ui/qml.qrc)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${QML_SOURCES})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE qt6_lib virtual-camera-controller-lib)
+target_link_libraries(${PROJECT_NAME} PRIVATE qt6_lib virtual-camera-controller-lib input-video-controller-lib)
