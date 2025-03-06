@@ -6,6 +6,9 @@
         <file>dialogs/device/DeviceFailureDisconnection.qml</file>
         <file>dialogs/device/DeviceSuccessfulConnection.qml</file>
         <file>dialogs/device/DeviceSuccessfulDisconnection.qml</file>
+        <file>additional-components/InputField.qml</file>
+        <file>additional-components/DeviceStatus.qml</file>
+        <file>additional-components/AnimatedButton.qml</file>
         <file>resources/write.png</file>
         <file>resources/device-connected.png</file>
         <file>resources/device-disconnected.png</file>
