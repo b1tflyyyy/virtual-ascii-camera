@@ -22,4 +22,4 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-add_subdirectory(virtual-camera)
+add_subdirectory(common-device)

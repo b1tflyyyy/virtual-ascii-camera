@@ -20,26 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "common-device-model.hpp"
 
-#include <QObject>
+CommonDeviceModel::CommonDeviceModel(QObject* parent) : 
+    QObject{ parent }, mIsConnected{ false }
+{ }
 
-class VirtualCameraModel : public QObject
+void CommonDeviceModel::SetConnectionStatus(bool status)
 {
-    Q_OBJECT
+    mIsConnected = status;
+    emit connectionStatusChanged();
+}
 
-    Q_PROPERTY(bool connectionStatus READ GetConnectionStatus NOTIFY connectionStatusChanged)
-
-public:
-    explicit VirtualCameraModel(QObject* parent = nullptr);
-    ~VirtualCameraModel() noexcept override = default;
-
-    void SetConnectionStatus(bool status);
-    bool GetConnectionStatus() const noexcept;
-
-signals:
-    void connectionStatusChanged();
-
-private:
-    bool mIsConnected;
-};
+bool CommonDeviceModel::GetConnectionStatus() const noexcept
+{
+    return mIsConnected;
+}

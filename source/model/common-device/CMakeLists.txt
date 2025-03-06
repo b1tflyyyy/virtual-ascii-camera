@@ -22,9 +22,9 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-set(LIB_NAME virtual-camera-model-lib)
+set(LIB_NAME common-device-model-lib)
 
-add_library(${LIB_NAME} STATIC virtual-camera-model.hpp virtual-camera-model.cpp)
+add_library(${LIB_NAME} common-device-model.cpp common-device-model.hpp)
 
-target_include_directories(${LIB_NAME} PUBLIC ./)
 target_link_libraries(${LIB_NAME} PUBLIC qt6_lib)
+target_include_directories(${LIB_NAME} PUBLIC ./)
