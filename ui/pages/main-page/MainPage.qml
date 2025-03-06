@@ -24,6 +24,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 
 import "../../dialogs/device"
+import "../../additional-components"
 
 Rectangle {
     id: _mainPage
@@ -39,6 +40,7 @@ Rectangle {
         }
     }
 
+    // TODO: rewrite it --------------------------------------------------------------------------
     // Connection successful message
     DeviceSuccessfulConnection {
         id: _deviceSuccessfulConnection
@@ -58,6 +60,7 @@ Rectangle {
     DeviceFailureDisconnection {
         id: _deviceFailureDisconnection
     }
+    // -------------------------------------------------------------------------------------------
 
     // Top Text Main Page
     Rectangle {
@@ -88,12 +91,19 @@ Rectangle {
         }
     }
 
-    // Device status
-    Rectangle {
-        id: _deviceStatus
+    // Output device status
+    DeviceStatus {
+        id: _outputDeviceStatus
 
-        width: 350
-        height: 30
+        statusWidth: 350
+        statusHeight: 30
+
+        statusText: "Output Device Status"
+        statusTextColor: "black"
+
+        textSize: 18
+
+        imagePath: virtualCameraModel.connectionStatus ? "qrc:/resources/device-connected.png" : "qrc:/resources/device-disconnected.png"
 
         anchors {
             top: parent.top 
@@ -101,215 +111,255 @@ Rectangle {
 
             left: parent.left
             leftMargin: 50
-        }
-
-        Text {
-            id: _deviceStatusText
-
-            text: "Device Status"
-            color: "black"
-
-            font {
-                pointSize: 18
-            }
-        }
-
-        Image {
-            id: _deviceStatusIcon
-
-            anchors {
-                left: _deviceStatusText.right
-                leftMargin: 10
-
-                top: _deviceStatusText.top
-            }
-
-            fillMode: Image.PreserveAspectFit
-            height: _deviceStatusText.height
-
-            source: virtualCameraModel.connectionStatus ? "qrc:/resources/device-connected.png" : "qrc:/resources/device-disconnected.png"
-        }
+        }        
     }
 
-    // Get Device
-    TextField {
-        id: _deviceInput
+    // Output device text field
+    InputField {
+        id: _outputDeviceInputField
+
+        fieldWidth: 350
+        fieldHeight: 50
+
+        textSize: 18
+        displayedPlaceholderText: "Enter the output device ..."
+
+        textFieldColor: "black"
 
         anchors {
-            left: _deviceStatus.left
+            left: _outputDeviceStatus.left
 
-            top: _deviceStatus.bottom
+            top: _outputDeviceStatus.bottom
             topMargin: 20
-        }
-
-        width: 350
-        height: 50
-
-        font {
-            pointSize: 18
-        }
-
-        placeholderText: "Enter here your device"
-
-        color: "black"
-        clip: true
-
-        Image {
-            id: _inputTextIcon
-
-            anchors {
-                verticalCenter: parent.verticalCenter
-                right: parent.right
-                rightMargin: 15
-            }
-
-            visible: _deviceInput.text === ""
-
-            height: parent.height
-
-            fillMode: Image.PreserveAspectFit
-            source: "qrc:/resources/write.png"
-        }
-
-        MouseArea {
-            anchors.fill: _deviceInput
-            hoverEnabled: true
-
-            cursorShape: containsMouse ? Qt.IBeamCursor : Qt.ArrowCursor
-            onClicked: {
-                _deviceInput.forceActiveFocus()
-            }
-        }
+        }        
     }
 
-    // Connect button
-    Rectangle {
-        id: _connectDeviceButton
+    // Connect output device button
+    AnimatedButton {
+        id: _outputDeviceConnectButton
 
-        property color buttonColor: {
+        // _outputDeviceDisconnectButton.anchors.leftMargin -> space between 1'st and 2'nd buttons
+        buttonWidth: (_outputDeviceInputField.width - _outputDeviceDisconnectButton.anchors.leftMargin) / 2
+        buttonHeight: _outputDeviceInputField.height
+
+        buttonRadius: 5
+
+        buttonTextSize: 18
+        buttonText: qsTr("Connect")
+        buttonTextColor: "white"
+
+        getButtonColorFunc: function(containsMouse) {
             if (!virtualCameraModel.connectionStatus) {
-                return _connectButtonMouseArea.containsMouse ? "lightgreen" : "green"
+                return containsMouse ? "lightgreen" : "green"
             }
 
-            return "gray"
+            return "gray"            
         }
 
+        getDynamicCursorShapeFunc: function (containsMouse) {
+            if (virtualCameraModel.connectionStatus) {
+                return Qt.ArrowCursor
+            }
+
+            return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor            
+        }
+
+        onAnimatedButtonClicked: function() {
+            if (!virtualCameraModel.connectionStatus) {
+                console.log(_outputDeviceInputField.text)
+                if (virtualCameraController.TryConnectToDevice(_outputDeviceInputField.text)) {
+                    _deviceSuccessfulConnection.open()                    
+                } else {
+                    _deviceFailureConnection.open()
+                }
+            } 
+        }
+        
         anchors {
-            left: _deviceInput.left
-            top: _deviceInput.bottom
+            left: _outputDeviceInputField.left
+            top: _outputDeviceInputField.bottom
 
             topMargin: 10
         }
-
-        color: buttonColor
-
-        width: (_deviceInput.width - _disconnectDeviceButton.anchors.leftMargin) / 2
-        height: _deviceInput.height
-
-        radius: 5
-
-        Text {
-            anchors.centerIn: _connectDeviceButton
-
-            font {
-                pointSize: 18
-            }
-
-            text: qsTr("Connect")
-            color: "white"
-        }
-
-        MouseArea {
-            id: _connectButtonMouseArea
-            
-            property var currentCursorShape: {
-                if (virtualCameraModel.connectionStatus) {
-                    return Qt.ArrowCursor
-                }
-
-                return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
-            }
-            
-            anchors.fill: _connectDeviceButton
-            hoverEnabled: true
-
-            cursorShape: currentCursorShape
-
-            onClicked: function() {
-                if (!virtualCameraModel.connectionStatus) {
-                    console.log(_deviceInput.text)
-                    if (virtualCameraController.TryConnectToDevice(_deviceInput.text)) {
-                        _deviceSuccessfulConnection.open()                    
-                    } else {
-                        _deviceFailureConnection.open()
-                    }
-                } 
-            }
-        }
     }
 
-    // Disconnect button
-    Rectangle {
-        id: _disconnectDeviceButton
+    // Disconnect output device button
+    AnimatedButton {
+        id: _outputDeviceDisconnectButton
 
-        property color buttonColor: {
+        buttonWidth: _outputDeviceConnectButton.width 
+        buttonHeight: _outputDeviceConnectButton.height
+
+        buttonRadius: 5
+        
+        buttonTextSize: 18
+        buttonText: qsTr("Disconnect")
+
+        getButtonColorFunc: function(containsMouse) {
             if (virtualCameraModel.connectionStatus) {
-                return _disconnectButtonMouseArea.containsMouse ? "#E6676B" : "red"
+                return containsMouse ? "#E6676B" : "red"
             }
 
             return "gray"
         }
 
+        getDynamicCursorShapeFunc: function(containsMouse) {
+            if (!virtualCameraModel.connectionStatus) {
+                return Qt.ArrowCursor
+            }
+
+            return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor            
+        }
+
+        onAnimatedButtonClicked: function() {
+            if (virtualCameraModel.connectionStatus) {
+                if (virtualCameraController.TryDisconnectFromDevice()) {
+                    _deviceSuccessfulDisconnection.open()
+                } else {
+                    _deviceFailureDisconnection.open()
+                }
+            }            
+        }
+
         anchors {
-            left: _connectDeviceButton.right
-            top: _connectDeviceButton.top
+            left: _outputDeviceConnectButton.right
+            top: _outputDeviceConnectButton.top
 
             leftMargin: 20
-        }
-
-        color: buttonColor
-
-        width: _connectDeviceButton.width 
-        height: _connectDeviceButton.height
-
-        radius: _connectDeviceButton.radius
-
-        Text {
-            anchors.centerIn: _disconnectDeviceButton
-
-            font {
-                pointSize: 18
-            }
-
-            text: qsTr("Disconnect")
-            color: "white"
-        }
-
-        MouseArea {
-            id: _disconnectButtonMouseArea
-
-            property var currentCursorShape: {
-                if (!virtualCameraModel.connectionStatus) {
-                    return Qt.ArrowCursor
-                }
-
-                return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
-            }
-
-            anchors.fill: _disconnectDeviceButton
-            hoverEnabled: true
-
-            cursorShape: currentCursorShape
-
-            onClicked: function() {
-                if (virtualCameraModel.connectionStatus) {
-                    if (virtualCameraController.TryDisconnectFromDevice()) {
-                        _deviceSuccessfulDisconnection.open()
-                    } else {
-                        _deviceFailureDisconnection.open()
-                    }
-                }
-            }
         }        
+    }
+
+    // Input device status
+    DeviceStatus {
+        id: _inputDeviceStatus
+
+        statusWidth: 350
+        statusHeight: 30
+
+        statusText: qsTr("Input Device Status")
+        statusTextColor: "black"
+
+        textSize: 18
+
+        imagePath: inputVideoModel.connectionStatus ? "qrc:/resources/device-disconnected.png" : "qrc:/resources/device-disconnected.png"       
+
+        anchors {
+            top: parent.top 
+            topMargin: parent.height * 0.40
+
+            right: parent.right
+            rightMargin: 50
+        }   
+    }
+
+    // Input device field
+    InputField {
+        id: _inputDeviceInputField
+
+        fieldWidth: 350
+        fieldHeight: 50
+
+        textSize: 18
+        displayedPlaceholderText: "Enter the input device ..."
+
+        textFieldColor: "black"
+
+        anchors {
+            left: _inputDeviceStatus.left
+
+            top: _inputDeviceStatus.bottom
+            topMargin: 20
+        } 
+    }
+
+    // Input device connect button
+    AnimatedButton {
+        id: _inputDeviceConnectButton
+
+        buttonWidth: (_inputDeviceInputField.width - _inputDeviceDisconnectButton.anchors.leftMargin) / 2
+        buttonHeight: _inputDeviceInputField.height
+
+        buttonRadius: 5
+
+        buttonTextSize: 18
+        buttonText: qsTr("Connect")
+        buttonTextColor: "white"
+
+        getButtonColorFunc: function(containsMouse) {
+            if (!inputVideoModel.connectionStatus) {
+                return containsMouse ? "lightgreen" : "green"
+            }
+
+            return "gray"
+        }
+
+        getDynamicCursorShapeFunc: function(containsMouse) {
+            if (inputVideoModel.connectionStatus) {
+                return Qt.ArrowCursor
+            }
+
+            return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor            
+        }
+
+        onAnimatedButtonClicked: function() {
+            if (!inputVideoModel.connectionStatus) {
+                if (inputVideoController.TryOpenInputSource(_inputDeviceInputField.text)) {
+                    _deviceSuccessfulConnection.open()
+                } else {
+                    _deviceFailureConnection.open()
+                }
+            }           
+        }
+
+        anchors {
+            top: _inputDeviceInputField.bottom
+            topMargin: 10
+
+            left: _inputDeviceInputField.left
+        }
+    }
+
+    // Input device disconnect button
+    AnimatedButton {
+        id: _inputDeviceDisconnectButton
+
+        buttonWidth: _inputDeviceConnectButton.buttonWidth
+        buttonHeight: _inputDeviceConnectButton.height 
+
+        buttonRadius: 5
+
+        buttonTextSize: 18
+        buttonText: qsTr("Disconnect")
+        buttonTextColor: "white"
+
+        getButtonColorFunc: function(containsMouse) {
+            if (inputVideoModel.connectionStatus) {
+                return containsMouse ? "#E6676B" : "red"
+            }
+
+            return "gray"
+        }
+
+        getDynamicCursorShapeFunc: function(containsMouse) {
+            if (!inputVideoModel.connectionStatus) {
+                return Qt.ArrowCursor
+            }
+
+            return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor            
+        }
+
+        onAnimatedButtonClicked: function() {
+            if (inputVideoModel.connectionStatus) {
+                inputVideoController.CloseInputSource()
+                _deviceSuccessfulDisconnection.open()
+            }           
+        }
+
+        anchors {
+            top: _inputDeviceConnectButton.top
+            
+            left: _inputDeviceConnectButton.right
+            leftMargin: 10
+        }
     }
 }
