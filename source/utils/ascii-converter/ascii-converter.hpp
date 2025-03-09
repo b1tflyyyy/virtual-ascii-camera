@@ -23,9 +23,11 @@
 #pragma once
 
 #include <vector>
-#include <string>
+#include <format>
 
 #include <opencv2/opencv.hpp>
+
+#include <symbols-representation.hpp>
 
 class ASCIIConverter
 {
@@ -33,16 +35,13 @@ public:
     ASCIIConverter();
     ~ASCIIConverter() noexcept = default;
 
-    void SetASCIISymbols(std::vector<std::string>&& ascii_symbols);
-    cv::Mat1b& ProcessInputFrame(cv::Mat1b& input_frame);
+    cv::Mat2b& ProcessInputFrame(cv::Mat1b& input_frame);
 
 private:
     void createLookupTable();
     std::size_t mapValue(const float old_value, const float old_min, const float old_max, const float new_min, const float new_max);
 
 private:
-    cv::Mat1b mOutputFrame;
-
-    std::vector<std::string> mLookupTable;
-    std::vector<std::string> mASCIISymbols;
+    cv::Mat2b mOutputFrame;
+    std::vector<mat8x8_t> mLookupTable;
 };

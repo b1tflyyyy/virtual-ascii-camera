@@ -26,5 +26,5 @@ set(LIB_NAME ascii-converter-lib)
 
 add_library(${LIB_NAME} STATIC ascii-converter.cpp ascii-converter.hpp)
 
-target_link_libraries(${LIB_NAME} PUBLIC opencv_lib)
+target_link_libraries(${LIB_NAME} PUBLIC opencv_lib symbols-representation-lib)
 target_include_directories(${LIB_NAME} PUBLIC ./)
