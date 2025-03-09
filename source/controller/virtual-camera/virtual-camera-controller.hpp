@@ -33,7 +33,7 @@ class VirtualCameraController : public QObject
     Q_OBJECT
 
 public:
-    explicit VirtualCameraController(CommonDeviceModel& virtual_camera_model, QObject* parent = nullptr);
+    explicit VirtualCameraController(CommonDeviceModel& virtual_camera_model, V4L2CXXWrapper& v4l2_cxx_wrapper, QObject* parent = nullptr);
     ~VirtualCameraController() noexcept override = default;
 
     // connects to device 
@@ -47,5 +47,5 @@ public:
 
 private:
     CommonDeviceModel& mVirtualCameraModel;
-    V4L2CXXWrapper mV4L2CXXWrapper;
+    V4L2CXXWrapper& mV4L2CXXWrapper;
 };

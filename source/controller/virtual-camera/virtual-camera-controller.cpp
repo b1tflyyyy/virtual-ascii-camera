@@ -22,8 +22,8 @@
 
 #include "virtual-camera-controller.hpp"
 
-VirtualCameraController::VirtualCameraController(CommonDeviceModel& virtual_camera_model, QObject* parent) :
-    QObject{ parent }, mVirtualCameraModel{ virtual_camera_model }, mV4L2CXXWrapper{ }
+VirtualCameraController::VirtualCameraController(CommonDeviceModel& virtual_camera_model, V4L2CXXWrapper& v4l2_cxx_wrapper, QObject* parent) :
+    QObject{ parent }, mVirtualCameraModel{ virtual_camera_model }, mV4L2CXXWrapper{ v4l2_cxx_wrapper }
 { }
 
 bool VirtualCameraController::TryConnectToDevice(const QString& device)
@@ -31,6 +31,9 @@ bool VirtualCameraController::TryConnectToDevice(const QString& device)
     const auto& std_string{ device.toStdString() };
     const auto result{ mV4L2CXXWrapper.TryOpenDevice(std_string) };
     
+    // TODO: remove it & add this option to the UI
+    SetupVideoFormat(1280, 720);
+
     mVirtualCameraModel.SetConnectionStatus(result);
     return result;
 }
@@ -52,7 +55,7 @@ bool VirtualCameraController::SetupVideoFormat(const std::int32_t frame_width, c
     format.fmt.pix.width = frame_width;
     format.fmt.pix.height = frame_height;
 
-    format.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY;
+    format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
     format.fmt.pix.field = V4L2_FIELD_NONE;
 
     return mV4L2CXXWrapper.TrySetupDeviceFormat(format);
