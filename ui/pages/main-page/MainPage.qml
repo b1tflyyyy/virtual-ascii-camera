@@ -241,7 +241,7 @@ Rectangle {
 
         textSize: 18
 
-        imagePath: inputVideoModel.connectionStatus ? "qrc:/resources/device-disconnected.png" : "qrc:/resources/device-disconnected.png"       
+        imagePath: inputVideoModel.connectionStatus ? "qrc:/resources/device-connected.png" : "qrc:/resources/device-disconnected.png"       
 
         anchors {
             top: parent.top 
@@ -360,6 +360,53 @@ Rectangle {
             
             left: _inputDeviceConnectButton.right
             leftMargin: 10
+        }
+    }
+
+    // Broadcasting button
+    AnimatedButton {
+        id: _startBroadcastingButton
+
+        buttonWidth: 350
+        buttonHeight: 50
+
+        buttonRadius: 5
+
+        buttonTextSize: 18
+        buttonText: qsTr("Start broadcasting")
+        buttonTextColor: "white"
+
+        getButtonColorFunc: function(containsMouse) {
+            if (!inputVideoModel.connectionStatus || !virtualCameraModel.connectionStatus) {
+                return "gray"
+            }
+
+            return containsMouse ? "#fffebf" : "#fffb00" // TODO: replace these colors
+        }
+
+        getDynamicCursorShapeFunc: function(containsMouse) {
+            if (!inputVideoModel.connectionStatus || !virtualCameraModel.connectionStatus) {
+                return Qt.ArrowCursor
+            }
+
+            return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor   
+        }
+
+        // TODO: remove debug logs & add clock protection
+        onAnimatedButtonClicked: function() {
+            if (!inputVideoModel.connectionStatus && !virtualCameraModel.connectionStatus) {
+                console.log("Error, please connect all devices !!!")
+            } else {
+                console.log("Okay, start broadcasting !!!")
+                frameProcessingController.StartBroadcasting()
+            }
+        }
+
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+
+            bottom: parent.bottom
+            bottomMargin: 20
         }
     }
 }
