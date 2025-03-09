@@ -45,10 +45,8 @@ public:
     // Tries to close input source
     Q_INVOKABLE void CloseInputSource();
 
-    /*
-        TODO: ->
-        add method to get frames 
-    */
+    // Returns grayscale frame
+    [[nodiscard]] cv::Mat1b& GetFrame();
 
 private:
     CommonDeviceModel& mInputVideoModel;

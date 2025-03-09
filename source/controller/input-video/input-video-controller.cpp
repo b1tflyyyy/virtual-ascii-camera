@@ -35,7 +35,7 @@ bool InputVideoController::TryOpenInputSource(const QString& source_path)
 
     const auto& std_string{ source_path.toStdString() };    
     const auto result{ mVideoCapture.open(std_string) };    
-    
+
     mInputVideoModel.SetConnectionStatus(result);
     
     return result;
@@ -45,4 +45,12 @@ void InputVideoController::CloseInputSource()
 {
     mVideoCapture.release();
     mInputVideoModel.SetConnectionStatus(false);
+}
+
+cv::Mat1b& InputVideoController::GetFrame()
+{
+    mVideoCapture.read(mOriginalFrame);
+    cv::cvtColor(mOriginalFrame, mGrayscaleFrame, cv::COLOR_BGR2GRAY);
+
+    return mGrayscaleFrame;
 }
