@@ -29,24 +29,50 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
-#include <cstddef>
 
 class V4L2CXXWrapper
 {
 public:
-    using frame_t = std::vector<std::byte>;
     using v4l2_format_t = struct v4l2_format;
 
-    V4L2CXXWrapper();
-    ~V4L2CXXWrapper() noexcept;
+    V4L2CXXWrapper() :
+        mFileDescriptor{ -1 }
+    { }
 
-    [[nodiscard]] bool TryOpenDevice(std::string_view device);
-    [[nodiscard]] bool TryCloseDevice() noexcept;
+    ~V4L2CXXWrapper() noexcept
+    {
+        (void) TryCloseDevice();
+    }
 
-    [[nodiscard]] bool TrySetupDeviceFormat(const v4l2_format_t& format);
+    [[nodiscard]] bool TryOpenDevice(std::string_view device)
+    {
+        mFileDescriptor = open(std::data(device), O_WRONLY);
+        return !(mFileDescriptor < 0);   
+    }
 
-    [[nodiscard]] bool TryWriteFrame(const frame_t& frame);
+    [[nodiscard]] bool TryCloseDevice() noexcept
+    {
+        if (mFileDescriptor < 0)
+        {
+            return false;
+        }
+
+        close(mFileDescriptor);
+        mFileDescriptor = -1;
+
+        return true;
+    }
+
+    [[nodiscard]] bool TrySetupDeviceFormat(const v4l2_format_t& format)
+    {
+        return !(ioctl(mFileDescriptor, VIDIOC_S_FMT, &format) < 0);
+    }
+
+    template <typename TMat>
+    [[nodiscard]] bool TryWriteFrame(const TMat& frame)
+    {
+        return !(write(mFileDescriptor, frame.data, frame.total() * frame.elemSize()) < 0);
+    }
 
 private:
     std::int32_t mFileDescriptor;

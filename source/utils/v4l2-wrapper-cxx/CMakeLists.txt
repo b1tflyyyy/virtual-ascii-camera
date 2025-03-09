@@ -24,5 +24,5 @@ cmake_minimum_required(VERSION 3.22)
 
 set(LIB_NAME v4l2wrapper-cxx-lib)
 
-add_library(${LIB_NAME} STATIC v4l2-wrapper.cpp v4l2-wrapper.hpp)
-target_include_directories(${LIB_NAME} PUBLIC ./)
+add_library(${LIB_NAME} INTERFACE v4l2-wrapper.hpp)
+target_include_directories(${LIB_NAME} INTERFACE ./)
