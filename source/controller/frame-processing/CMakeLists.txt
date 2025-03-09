@@ -22,6 +22,9 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-add_subdirectory(virtual-camera)
-add_subdirectory(input-video)
-add_subdirectory(frame-processing)
+set(LIB_NAME frame-processing-controller-lib)
+
+add_library(${LIB_NAME} frame-processing-controller.cpp frame-processing-controller.hpp)
+
+target_link_libraries(${LIB_NAME} PUBLIC ascii-converter-lib qt6_lib v4l2wrapper-cxx-lib input-video-controller-lib double-buffer-lib)
+target_include_directories(${LIB_NAME} PUBLIC ./)
