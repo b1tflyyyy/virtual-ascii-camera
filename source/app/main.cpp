@@ -29,6 +29,8 @@
 #include <virtual-camera-controller.hpp>
 #include <input-video-controller.hpp>
 
+#include <frame-processing-controller.hpp>
+
 int main(int argc, char** argv)
 {
     QGuiApplication app{ argc, argv };
@@ -36,17 +38,25 @@ int main(int argc, char** argv)
 
     auto* ctx{ engine.rootContext() };
 
+    V4L2CXXWrapper v4l2_cxx_wrapper{};
+
     CommonDeviceModel virtual_camera_model{};
-    VirtualCameraController virtual_camera_controller{ virtual_camera_model };
+    VirtualCameraController virtual_camera_controller{ virtual_camera_model, v4l2_cxx_wrapper };
     
     CommonDeviceModel input_video_model{};
     InputVideoController input_video_controller{ input_video_model };
+
+    ASCIIConverter ascii_converter{};
+
+    FrameProcessingController frame_processing_controller{ input_video_controller, ascii_converter, v4l2_cxx_wrapper };
 
     ctx->setContextProperty("virtualCameraModel", &virtual_camera_model);
     ctx->setContextProperty("virtualCameraController", &virtual_camera_controller);
 
     ctx->setContextProperty("inputVideoModel", &input_video_model);
     ctx->setContextProperty("inputVideoController", &input_video_controller);
+
+    ctx->setContextProperty("frameProcessingController", &frame_processing_controller);
 
     const QUrl& url{ QStringLiteral("qrc:/main-window/MainWindow.qml") };
     engine.load(url);
