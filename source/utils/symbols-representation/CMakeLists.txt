@@ -22,7 +22,9 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-add_subdirectory(v4l2-wrapper-cxx)
-add_subdirectory(double-buffer)
-add_subdirectory(ascii-converter)
-add_subdirectory(symbols-representation)
+set(LIB_NAME symbols-representation-lib)
+
+add_library(${LIB_NAME} INTERFACE)
+
+target_link_libraries(${LIB_NAME} INTERFACE opencv_lib)
+target_include_directories(${LIB_NAME} INTERFACE ./)
