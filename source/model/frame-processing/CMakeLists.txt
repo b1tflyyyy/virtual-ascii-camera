@@ -22,5 +22,9 @@
 
 cmake_minimum_required(VERSION 3.22)
 
-add_subdirectory(common-device)
-add_subdirectory(frame-processing)
+set(LIB_NAME frame-processing-model-lib)
+
+add_library(${LIB_NAME} frame-processing-model.cpp frame-processing-model.hpp)
+
+target_link_libraries(${LIB_NAME} PUBLIC qt6_lib)
+target_include_directories(${LIB_NAME} PUBLIC ./)
