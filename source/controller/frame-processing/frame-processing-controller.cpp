@@ -22,44 +22,51 @@
 
 #include "frame-processing-controller.hpp"
 
-FrameProcessingController::FrameProcessingController(InputVideoController& input_video_controller, ASCIIConverter& ascii_converter, V4L2CXXWrapper& v4l2_cxx_wrapper, QObject* parent) : 
-    QObject{ parent }, mInputVideoController{ input_video_controller }, mASCIIConverter{ ascii_converter }, mV4L2CXXWrapper{ v4l2_cxx_wrapper }, mProcessingThread{}, mBroadcastingThread{}, mDoubleBuffer{}
+FrameProcessingController::FrameProcessingController(InputVideoController& input_video_controller, ASCIIConverter& ascii_converter, V4L2CXXWrapper& v4l2_cxx_wrapper, FrameProcessingModel& frame_processing_model, QObject* parent) : 
+    QObject{ parent }, mInputVideoController{ input_video_controller }, mASCIIConverter{ ascii_converter }, mV4L2CXXWrapper{ v4l2_cxx_wrapper }, mFrameProcessingModel{ frame_processing_model }, mProcessingThread{}, mBroadcastingThread{}, mDoubleBuffer{}
 { }
+
+FrameProcessingController::~FrameProcessingController() noexcept 
+{
+    stopProcessingThread();
+    stopBroadcastingThread();
+}
 
 void FrameProcessingController::StartBroadcasting()
 {
     if (!mProcessingThread.has_value() && !mBroadcastingThread.has_value())
     {
+        mFrameProcessingModel.SetBroadcastingState(FrameProcessingModel::ProcessingState::BROADCASTING);
+
         mProcessingThread.emplace(&FrameProcessingController::processingFrame, this);
         mBroadcastingThread.emplace(&FrameProcessingController::virtualCameraBroadcasting, this);
     }
-
-    if (mProcessingThread->joinable() && mBroadcastingThread->joinable())
-    {
-        mProcessingThread->detach();
-        mBroadcastingThread->detach();
-    }
 }
 
-// TODO: add this to the UI
 void FrameProcessingController::StopBroadcasting()
 {
-    mProcessingThread->request_stop();
-    mBroadcastingThread->request_stop();
+    stopProcessingThread();
+    stopBroadcastingThread();
+
+    mFrameProcessingModel.SetBroadcastingState(FrameProcessingModel::ProcessingState::WAITING);
 }
 
 void FrameProcessingController::processingFrame(std::stop_token stop_token)
 {
     while (!stop_token.stop_requested())
     {
-        cv::Mat1b& grayscale_frame{ mInputVideoController.GetFrame() };
-        const cv::Mat2b& processed_frame{ mASCIIConverter.ProcessInputFrame(grayscale_frame) };
+        auto grayscale_frame{ mInputVideoController.GetFrame() };
+        if (!grayscale_frame.has_value())
+        {
+            emit mFrameProcessingModel.inputDeviceError();
+            return;
+        }
 
+        const cv::Mat2b& processed_frame{ mASCIIConverter.ProcessInputFrame(*grayscale_frame.value()) };
         mDoubleBuffer.Write(processed_frame);
     }
 }
 
-// TODO: handle "Error writing frame"
 void FrameProcessingController::virtualCameraBroadcasting(std::stop_token stop_token)
 {
     cv::Mat2b output_frame{};
@@ -69,8 +76,26 @@ void FrameProcessingController::virtualCameraBroadcasting(std::stop_token stop_t
         mDoubleBuffer.Read(output_frame);
         if (!mV4L2CXXWrapper.TryWriteFrame(output_frame))
         {
-            std::cerr << "Error writing frame\n";
+            emit mFrameProcessingModel.outputDeviceError();
             return;
         }
+    }
+}
+
+void FrameProcessingController::stopProcessingThread() noexcept
+{
+    if (mProcessingThread.has_value())
+    {
+        mProcessingThread->request_stop();
+        mProcessingThread.reset();
+    }
+}
+
+void FrameProcessingController::stopBroadcastingThread() noexcept
+{
+    if (mBroadcastingThread.has_value())
+    {
+        mBroadcastingThread->request_stop();
+        mBroadcastingThread.reset();
     }
 }

@@ -24,7 +24,6 @@
 
 #include <thread>
 #include <optional>
-#include <iostream>
 
 #include <QObject>
 
@@ -32,14 +31,15 @@
 #include <v4l2-wrapper.hpp>
 #include <input-video-controller.hpp>
 #include <double-buffer.hpp>
+#include <frame-processing-model.hpp>
 
 class FrameProcessingController : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit FrameProcessingController(InputVideoController& input_video_controller, ASCIIConverter& ascii_converter, V4L2CXXWrapper& v4l2_cxx_wrapper, QObject* parent = nullptr);
-    ~FrameProcessingController() noexcept override = default;
+    explicit FrameProcessingController(InputVideoController& input_video_controller, ASCIIConverter& ascii_converter, V4L2CXXWrapper& v4l2_cxx_wrapper, FrameProcessingModel& frame_processing_model, QObject* parent = nullptr);
+    ~FrameProcessingController() noexcept override;
 
     Q_INVOKABLE void StartBroadcasting();
     Q_INVOKABLE void StopBroadcasting();
@@ -48,10 +48,14 @@ private:
     void processingFrame(std::stop_token stop_token);
     void virtualCameraBroadcasting(std::stop_token stop_token);
 
+    void stopProcessingThread() noexcept;
+    void stopBroadcastingThread() noexcept;
+
 private:
     InputVideoController& mInputVideoController;
     ASCIIConverter& mASCIIConverter;
     V4L2CXXWrapper& mV4L2CXXWrapper;
+    FrameProcessingModel& mFrameProcessingModel;
     
     std::optional<std::jthread> mProcessingThread;
     std::optional<std::jthread> mBroadcastingThread;
