@@ -22,16 +22,29 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Dialogs
 
 Dialog {
-    id: _deviceSuccessfulConnection
-    
-    title: qsTr("Device successfully connected!")
-    standardButtons: Dialog.Ok | Dialog.Cancel
-    
-    width: parent.width * 0.40
-    height: parent.height * 0.15
-    
-    anchors.centerIn: parent
+    id: _dialog
+
+    property int textSize: 0
+    property string description: ""
+
+    title: "Default"
+    standardButtons: Dialog.Ok
+
+    anchors {
+        centerIn: parent 
+    }
+
+    Text {
+        anchors {
+            centerIn: parent 
+        }
+        
+        font {
+            pointSize: textSize
+        }
+
+        text: description
+    }
 }
