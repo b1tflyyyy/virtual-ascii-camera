@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <string>
+#include <optional>
 
 #include <QObject>
 #include <QDebug>
@@ -46,7 +46,7 @@ public:
     Q_INVOKABLE void CloseInputSource();
 
     // Returns grayscale frame
-    [[nodiscard]] cv::Mat1b& GetFrame();
+    [[nodiscard]] std::optional<cv::Mat1b*> GetFrame();
 
 private:
     CommonDeviceModel& mInputVideoModel;

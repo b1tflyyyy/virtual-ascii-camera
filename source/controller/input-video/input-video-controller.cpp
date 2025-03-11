@@ -47,10 +47,13 @@ void InputVideoController::CloseInputSource()
     mInputVideoModel.SetConnectionStatus(false);
 }
 
-cv::Mat1b& InputVideoController::GetFrame()
+std::optional<cv::Mat1b*> InputVideoController::GetFrame()
 {
-    mVideoCapture.read(mOriginalFrame);
-    cv::cvtColor(mOriginalFrame, mGrayscaleFrame, cv::COLOR_BGR2GRAY);
+    if (!mVideoCapture.read(mOriginalFrame))
+    {
+        return std::nullopt;
+    }
 
-    return mGrayscaleFrame;
+    cv::cvtColor(mOriginalFrame, mGrayscaleFrame, cv::COLOR_BGR2GRAY);
+    return &mGrayscaleFrame;
 }
