@@ -34,7 +34,7 @@ Window {
     width: Screen.width * 0.50
     height: Screen.height * 0.50
 
-    minimumWidth: 680
+    minimumWidth: 880
     minimumHeight: 340
 
     MainPage { }
