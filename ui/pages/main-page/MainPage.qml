@@ -23,7 +23,9 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
-import "../../dialogs/device"
+import CppEnums 1.0
+
+import "../../dialogs/default-message"
 import "../../additional-components"
 
 Rectangle {
@@ -40,27 +42,100 @@ Rectangle {
         }
     }
 
-    // TODO: rewrite it --------------------------------------------------------------------------
-    // Connection successful message
-    DeviceSuccessfulConnection {
+    // Creating default messages
+    
+    // Device connection successful message
+    DefaultMessage {
         id: _deviceSuccessfulConnection
+
+        title: "Success"
+
+        width: parent.width * 0.60
+        height: parent.height * 0.20
+
+        textSize: 14
+        description: "Device connected successfully!"
     }
 
-    // Connection failure message
-    DeviceFailureConnection {
+    // Device connection failure message
+    DefaultMessage {
         id: _deviceFailureConnection
+
+        title: "Failure"
+
+        width: parent.width * 0.60
+        height: parent.height * 0.20
+
+        textSize: 14
+        description: "Device connection failed!"
     }
 
-    // Disconnection successful message
-    DeviceSuccessfulDisconnection {
+    // Device disconnection successful message
+    DefaultMessage {
         id: _deviceSuccessfulDisconnection
+
+        title: "Success"
+
+        width: parent.width * 0.60
+        height: parent.height * 0.20
+
+        textSize: 14
+        description: "Device disconnected successfully!"
     }
 
-    // Disconnection failure message
-    DeviceFailureDisconnection {
+    // Device disconnection failure message
+    DefaultMessage {
         id: _deviceFailureDisconnection
+
+        title: "Failure"
+
+        width: parent.width * 0.60
+        height: parent.height * 0.20
+
+        textSize: 14
+        description: "Device disconnection failed!"
     }
-    // -------------------------------------------------------------------------------------------
+
+    // Input device error message
+    DefaultMessage {
+        id: _inputDeviceError
+
+        title: "Failure"
+
+        width: parent.width * 0.60
+        height: parent.height * 0.25
+
+        textSize: 14
+        description: "Input device error getting frame,\nplease check your input device and retry!"
+    }    
+
+    // Output device error message
+    DefaultMessage {
+        id: _outputDeviceError
+
+        title: "Failure"
+
+        width: parent.width * 0.60
+        height: parent.height * 0.25
+
+        textSize: 14
+        description: "Output device error writing frame,\nplease check your output device and retry!"
+    }
+
+    // Setup connections
+    Connections {
+        target: frameProcessingModel
+        
+        function onInputDeviceError() {
+            frameProcessingController.StopBroadcasting()
+            _inputDeviceError.open()
+        }
+
+        function onOutputDeviceError() {
+            frameProcessingController.StopBroadcasting()
+            _outputDeviceError.open()
+        }
+    }
 
     // Top Text Main Page
     Rectangle {
@@ -363,11 +438,11 @@ Rectangle {
         }
     }
 
-    // Broadcasting button
+    // Start broadcasting button
     AnimatedButton {
         id: _startBroadcastingButton
 
-        buttonWidth: 350
+        buttonWidth: 250
         buttonHeight: 50
 
         buttonRadius: 5
@@ -377,36 +452,76 @@ Rectangle {
         buttonTextColor: "white"
 
         getButtonColorFunc: function(containsMouse) {
-            if (!inputVideoModel.connectionStatus || !virtualCameraModel.connectionStatus) {
+            if (!inputVideoModel.connectionStatus || !virtualCameraModel.connectionStatus || (frameProcessingModel.broadcastingState === ProcessingState.BROADCASTING)) {
                 return "gray"
             }
 
-            return containsMouse ? "#fffebf" : "#fffb00" // TODO: replace these colors
+            return containsMouse ? "#ed02cd" : "#7c006c" 
         }
 
         getDynamicCursorShapeFunc: function(containsMouse) {
-            if (!inputVideoModel.connectionStatus || !virtualCameraModel.connectionStatus) {
+            if (!inputVideoModel.connectionStatus || !virtualCameraModel.connectionStatus || (frameProcessingModel.broadcastingState === ProcessingState.BROADCASTING)) {
                 return Qt.ArrowCursor
             }
 
             return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor   
         }
 
-        // TODO: remove debug logs & add clock protection
         onAnimatedButtonClicked: function() {
-            if (!inputVideoModel.connectionStatus && !virtualCameraModel.connectionStatus) {
-                console.log("Error, please connect all devices !!!")
-            } else {
-                console.log("Okay, start broadcasting !!!")
+            if (inputVideoModel.connectionStatus && virtualCameraModel.connectionStatus && (frameProcessingModel.broadcastingState === ProcessingState.WAITING)) {
                 frameProcessingController.StartBroadcasting()
             }
         }
 
         anchors {
-            horizontalCenter: parent.horizontalCenter
+            left: parent.left
+            leftMargin: (parent.width - _stopBroadcastingButton.anchors.leftMargin) / 2 - buttonWidth
 
             bottom: parent.bottom
             bottomMargin: 20
+        }
+    }
+
+    // Stop broadcasting button
+    AnimatedButton {
+        id: _stopBroadcastingButton
+
+        buttonWidth: _startBroadcastingButton.width
+        buttonHeight: _startBroadcastingButton.height 
+
+        buttonRadius: 5
+
+        buttonTextSize: 18
+        buttonText: qsTr("Stop broadcasting")
+        buttonTextColor: "white"
+
+        getButtonColorFunc: function(containsMouse) {
+            if (!inputVideoModel.connectionStatus || !virtualCameraModel.connectionStatus || (frameProcessingModel.broadcastingState === ProcessingState.WAITING)) {
+                return "gray"
+            }
+
+            return containsMouse ? "#4502fc" : "#22017f" 
+        }
+
+        getDynamicCursorShapeFunc: function(containsMouse) {
+            if (!inputVideoModel.connectionStatus || !virtualCameraModel.connectionStatus || (frameProcessingModel.broadcastingState === ProcessingState.WAITING)) {
+                return Qt.ArrowCursor
+            }
+
+            return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor   
+        }
+
+        onAnimatedButtonClicked: function() {
+            if (inputVideoModel.connectionStatus && virtualCameraModel.connectionStatus && (frameProcessingModel.broadcastingState === ProcessingState.BROADCASTING)) {
+                frameProcessingController.StopBroadcasting()
+            }
+        }
+
+        anchors {
+            left: _startBroadcastingButton.right
+            leftMargin: 20
+
+            top: _startBroadcastingButton.top
         }
     }
 }
