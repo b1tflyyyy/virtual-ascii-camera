@@ -2,13 +2,10 @@
     <qresource prefix = "/">
         <file>main-window/MainWindow.qml</file>
         <file>pages/main-page/MainPage.qml</file>
-        <file>dialogs/device/DeviceFailureConnection.qml</file>
-        <file>dialogs/device/DeviceFailureDisconnection.qml</file>
-        <file>dialogs/device/DeviceSuccessfulConnection.qml</file>
-        <file>dialogs/device/DeviceSuccessfulDisconnection.qml</file>
         <file>additional-components/InputField.qml</file>
         <file>additional-components/DeviceStatus.qml</file>
         <file>additional-components/AnimatedButton.qml</file>
+        <file>dialogs/default-message/DefaultMessage.qml</file>
         <file>resources/write.png</file>
         <file>resources/device-connected.png</file>
         <file>resources/device-disconnected.png</file>
