@@ -30,9 +30,6 @@ bool VirtualCameraController::TryConnectToDevice(const QString& device)
 {
     const auto& std_string{ device.toStdString() };
     const auto result{ mV4L2CXXWrapper.TryOpenDevice(std_string) };
-    
-    // TODO: remove it & add this option to the UI
-    SetupVideoFormat(1280, 720);
 
     mVirtualCameraModel.SetConnectionStatus(result);
     return result;
@@ -46,6 +43,7 @@ bool VirtualCameraController::TryDisconnectFromDevice()
     return result;
 }
 
+// TODO: check input
 bool VirtualCameraController::SetupVideoFormat(const std::int32_t frame_width, const std::int32_t frame_height)
 {
     V4L2CXXWrapper::v4l2_format_t format{};
