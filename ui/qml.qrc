@@ -6,8 +6,10 @@
         <file>additional-components/DeviceStatus.qml</file>
         <file>additional-components/AnimatedButton.qml</file>
         <file>dialogs/default-message/DefaultMessage.qml</file>
+        <file>panel/settings-side-panel/SettingsSidePanel.qml</file>
         <file>resources/write.png</file>
         <file>resources/device-connected.png</file>
         <file>resources/device-disconnected.png</file>
+        <file>resources/setting.png</file>
     </qresource>
 </RCC>

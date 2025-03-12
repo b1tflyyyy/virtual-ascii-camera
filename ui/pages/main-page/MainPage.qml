@@ -27,6 +27,7 @@ import CppEnums 1.0
 
 import "../../dialogs/default-message"
 import "../../additional-components"
+import "../../panel/settings-side-panel"
 
 Rectangle {
     id: _mainPage
@@ -522,6 +523,44 @@ Rectangle {
             leftMargin: 20
 
             top: _startBroadcastingButton.top
+        }
+    }
+
+    // Settings side panel
+    SettingsSidePanel {
+        id: _settingsSidePanel
+    }
+
+    // Output virtual camera settings 
+    Image {
+        id: _outputSettings
+
+        width: 32
+        height: 32 
+
+        anchors {
+            left: parent.left
+            leftMargin: 30
+
+            bottom: parent.bottom
+            bottomMargin: 30
+        }
+
+        fillMode: Image.PreserveAspectFit
+
+        source: "qrc:/resources/setting.png"
+
+        MouseArea {
+            id: _outputSettingsMouseArea
+
+            anchors {
+                fill: parent
+            }
+
+            onClicked: function() {
+                _settingsSidePanel.open()
+                console.log("settings clicked")
+            }
         }
     }
 }
