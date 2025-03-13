@@ -123,6 +123,50 @@ Rectangle {
         description: "Output device error writing frame,\nplease check your output device and retry!"
     }
 
+    // Output device error message: "The input device must be connected before the output device"
+    DefaultMessage {
+        id: _outputDeviceWrongOrderError
+
+        title: "Failure"
+
+        width: parent.width * 0.60
+        height: parent.height * 0.25
+
+        textSize: 14
+        description: "The input device must be connected before the output device!"
+    }
+
+    // Output device error: "Failed to set the resolution for the output device, try checking the device or restarting the program!"
+    DefaultMessage {
+        id: _outputDeviceSettingResolutionError
+
+        title: "Failure"
+
+        width: parent.width * 0.60
+        height: parent.height * 0.25
+
+        textSize: 14
+        description: "Failed to set the resolution for the output device,\ntry checking the device or restarting the program!"
+    }
+
+    // Default message for dynamic creation
+    Component {
+        id: _dynamicDialogComponent
+
+        DefaultMessage {
+            id: _outputDeviceSettingResolutionError
+
+            width: parent.width * 0.60
+            height: parent.height * 0.25
+
+            textSize: 14
+
+            onAccepted: function() {
+                Qt.callLater(destroy)
+            }
+        }
+    }
+
     // Setup connections
     Connections {
         target: frameProcessingModel
@@ -243,10 +287,25 @@ Rectangle {
         onAnimatedButtonClicked: function() {
             if (!virtualCameraModel.connectionStatus) {
                 console.log(_outputDeviceInputField.text)
-                if (virtualCameraController.TryConnectToDevice(_outputDeviceInputField.text)) {
-                    _deviceSuccessfulConnection.open()                    
+                if (inputVideoModel.connectionStatus) { 
+                    if (virtualCameraController.TryConnectToDevice(_outputDeviceInputField.text)) {
+                        let width = inputVideoController.GetVideoWidth()
+                        let height = inputVideoController.GetVideoHeight()
+
+                        if (virtualCameraController.SetupVideoResolution(width, height)) {
+                            let message = "Successfully connected to output device.\nDefault resolution: %1x%2"
+                            let successMessage = _dynamicDialogComponent.createObject(_mainPage, {
+                                title: "Success",
+                                description: message.arg(width).arg(height)
+                            })
+
+                            successMessage.open()
+                        } else {
+                            _outputDeviceSettingResolutionError.open()
+                        }
+                    }                    
                 } else {
-                    _deviceFailureConnection.open()
+                    _outputDeviceWrongOrderError.open()
                 }
             } 
         }
@@ -527,6 +586,8 @@ Rectangle {
     }
 
     // Settings side panel
+    // TODO: rewrite it, remove resolution settings
+    // ------------------------------------------->
     SettingsSidePanel {
         id: _settingsSidePanel
     }

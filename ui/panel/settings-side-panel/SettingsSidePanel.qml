@@ -25,6 +25,8 @@ import QtQuick.Controls 2.15
 
 import "../../additional-components"
 
+// TODO: rewrite !!!
+// -------------------------------------->
 Drawer {
     id: _settingsSidePanel
 
