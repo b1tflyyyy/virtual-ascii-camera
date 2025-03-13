@@ -45,6 +45,12 @@ public:
     // Tries to close input source
     Q_INVOKABLE void CloseInputSource();
 
+    // Returns video width 
+    Q_INVOKABLE std::ptrdiff_t GetVideoWidth() const;
+
+    // Returns video height 
+    Q_INVOKABLE std::ptrdiff_t GetVideoHeight() const;
+
     // Returns grayscale frame
     [[nodiscard]] std::optional<cv::Mat1b*> GetFrame();
 

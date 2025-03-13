@@ -47,6 +47,16 @@ void InputVideoController::CloseInputSource()
     mInputVideoModel.SetConnectionStatus(false);
 }
 
+std::ptrdiff_t InputVideoController::GetVideoWidth() const
+{
+    return mVideoCapture.get(cv::CAP_PROP_FRAME_WIDTH);
+}
+
+std::ptrdiff_t InputVideoController::GetVideoHeight() const 
+{
+    return mVideoCapture.get(cv::CAP_PROP_FRAME_HEIGHT);
+}
+
 std::optional<cv::Mat1b*> InputVideoController::GetFrame()
 {
     if (!mVideoCapture.read(mOriginalFrame))
