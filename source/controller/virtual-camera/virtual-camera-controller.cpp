@@ -43,8 +43,7 @@ bool VirtualCameraController::TryDisconnectFromDevice()
     return result;
 }
 
-// TODO: check input
-bool VirtualCameraController::SetupVideoFormat(const std::int32_t frame_width, const std::int32_t frame_height)
+bool VirtualCameraController::SetupVideoResolution(const std::ptrdiff_t frame_width, const std::ptrdiff_t frame_height)
 {
     V4L2CXXWrapper::v4l2_format_t format{};
 

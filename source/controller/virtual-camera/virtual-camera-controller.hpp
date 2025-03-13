@@ -36,14 +36,14 @@ public:
     explicit VirtualCameraController(CommonDeviceModel& virtual_camera_model, V4L2CXXWrapper& v4l2_cxx_wrapper, QObject* parent = nullptr);
     ~VirtualCameraController() noexcept override = default;
 
-    // connects to device 
+    // Connects to device 
     Q_INVOKABLE bool TryConnectToDevice(const QString& device);
 
-    // disconnects from device 
+    // Disconnects from device 
     Q_INVOKABLE bool TryDisconnectFromDevice();
     
-    // setup device settings
-    Q_INVOKABLE bool SetupVideoFormat(const std::int32_t frame_width, const std::int32_t frame_height); 
+    // Setup output video resolution
+    Q_INVOKABLE bool SetupVideoResolution(const std::ptrdiff_t frame_width, const std::ptrdiff_t frame_height); 
 
 private:
     CommonDeviceModel& mVirtualCameraModel;
