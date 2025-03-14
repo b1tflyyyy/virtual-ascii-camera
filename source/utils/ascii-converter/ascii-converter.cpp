@@ -28,15 +28,14 @@ ASCIIConverter::ASCIIConverter() :
     createLookupTable();
 }
 
-// TODO: maybe add more input parameters and parallelize it ?
-cv::Mat2b& ASCIIConverter::ProcessInputFrame(cv::Mat1b& input_frame)
+cv::Mat2b& ASCIIConverter::ProcessInputFrame(cv::Mat1b& input_frame, const uchar cr, const uchar cb)
 {
     const auto original_cols{ static_cast<std::ptrdiff_t>(input_frame.cols) };
     const auto original_rows{ static_cast<std::ptrdiff_t>(input_frame.rows) };
 
     // resize by symbol dimension 
     cv::resize(input_frame, input_frame, cv::Size(original_cols / SYMBOL_DIMENSION, original_rows / SYMBOL_DIMENSION));
-    mOutputFrame = cv::Mat2b(original_rows, original_cols, cv::Vec2b{ 0, 128 });
+    initOutputFrame(original_rows, original_cols, 0, cr, cb);
 
     for (std::ptrdiff_t resized_i{}; resized_i < input_frame.rows; ++resized_i) 
     {
@@ -55,10 +54,6 @@ cv::Mat2b& ASCIIConverter::ProcessInputFrame(cv::Mat1b& input_frame)
                     // set level of white
                     yuyv_1[0] = symbol_representation[symbol_i][symbol_j];
                     yuyv_2[0] = symbol_representation[symbol_i][symbol_j + 1];
-                
-                    // set neutral Cb Cr
-                    yuyv_1[1] = 128;
-                    yuyv_2[1] = 128;
                 }
             }
         }
@@ -79,4 +74,24 @@ void ASCIIConverter::createLookupTable()
 std::size_t ASCIIConverter::mapValue(const float old_value, const float old_min, const float old_max, const float new_min, const float new_max)
 {
     return static_cast<std::size_t>(((old_value - old_min) / (old_max - old_min)) * (new_max - new_min) + new_min);
+}
+
+void ASCIIConverter::initOutputFrame(const std::ptrdiff_t rows, const std::ptrdiff_t cols, const uchar y, const uchar cr, const uchar cb)
+{
+    mOutputFrame = cv::Mat2b(rows, cols);
+
+    for (std::ptrdiff_t i{}; i < rows; ++i)
+    {
+        for (std::ptrdiff_t j{}; j < cols; j += 2)
+        {
+            auto& yuyv_1{ mOutputFrame.at<cv::Vec2b>(i, j) };
+            auto& yuyv_2{ mOutputFrame.at<cv::Vec2b>(i, j + 1) };
+
+            yuyv_1[0] = y;
+            yuyv_2[0] = y;
+
+            yuyv_1[1] = cb;
+            yuyv_2[1] = cr;
+        }
+    }
 }

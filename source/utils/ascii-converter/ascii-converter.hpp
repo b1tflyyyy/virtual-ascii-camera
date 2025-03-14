@@ -35,11 +35,13 @@ public:
     ASCIIConverter();
     ~ASCIIConverter() noexcept = default;
 
-    cv::Mat2b& ProcessInputFrame(cv::Mat1b& input_frame);
+    cv::Mat2b& ProcessInputFrame(cv::Mat1b& input_frame, const uchar cr, const uchar cb);
 
 private:
     void createLookupTable();
     std::size_t mapValue(const float old_value, const float old_min, const float old_max, const float new_min, const float new_max);
+
+    void initOutputFrame(const std::ptrdiff_t rows, const std::ptrdiff_t cols, const uchar y, const uchar cr, const uchar cb);
 
 private:
     cv::Mat2b mOutputFrame;
