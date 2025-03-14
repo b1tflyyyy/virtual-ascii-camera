@@ -25,8 +25,6 @@ import QtQuick.Controls 2.15
 
 import "../../additional-components"
 
-// TODO: rewrite !!!
-// -------------------------------------->
 Drawer {
     id: _settingsSidePanel
 
@@ -65,130 +63,88 @@ Drawer {
         text: qsTr("Virtual Camera Settings")
     }
 
-    // Width setting text
+    // Blue level text
     Text {
-        id: _widthSettingText
+        id: _blueLevelText
 
         anchors {
-            left: parent.left
-            leftMargin: 10
-
             top: parent.top
-            topMargin: 70
+            topMargin: 80
+
+            left: parent.left
+            leftMargin: 25
         }
 
         font {
-            pointSize: 14
+            pointSize: 16
         }
 
-        text: qsTr("Setup output width")
+        text: qsTr("Blue level: %1".arg(_blueLevelSlider.value))
     }
 
-    // Width input field
-    InputField {
-        id: _widthInputField
+    // Blue level slider
+    Slider {
+        id: _blueLevelSlider
 
-        fieldWidth: parent.width * 0.50
-        fieldHeight: 40
+        from: 0
+        value: 128
+        to: 255
+        stepSize: 1
 
-        textSize: 14
-        displayedPlaceholderText: qsTr("Width ...")
-
-        textFieldColor: "black"
-
-        validator: IntValidator { 
-            bottom: 1
-            top: 3840
-        }
+        width: parent.width / 2
+        height: 20
 
         anchors {
-            left: _widthSettingText.left
+            left: _blueLevelText.left
 
-            top: _widthSettingText.bottom
-            topMargin: 5
+            top: _blueLevelText.bottom
+            topMargin: 2
+        }
+
+        onMoved: function() {
+            frameProcessingController.SetCbLevel(_blueLevelSlider.value)
         }
     }
 
-    // Height setting text
+    // Red level text
     Text {
-        id: _heightSettingText
+        id: _redLevelText
 
         anchors {
-            left: _widthInputField.left
-            
-            top: _widthInputField.bottom
-            topMargin: 10
+            top: _blueLevelSlider.bottom
+            topMargin: 30
+
+            left: _blueLevelSlider.left
         }
 
         font {
-            pointSize: 14
+            pointSize: 16
         }
 
-        text: qsTr("Setup output height")
+        text: qsTr("Red level: %1".arg(_redLevelSlider.value))
     }
 
-    // Width input field
-    InputField {
-        id: _heightInputField
+    // Red level slider
+    Slider {
+        id: _redLevelSlider
 
-        fieldWidth: _widthInputField.fieldWidth
-        fieldHeight: _widthInputField.fieldHeight
+        from: 0
+        value: 128
+        to: 255
+        stepSize: 1
 
-        textSize: 14
-        displayedPlaceholderText: qsTr("Height ...")
-
-        textFieldColor: "black"
-
-        validator: IntValidator { 
-            bottom: 1
-            top: 3840
-        }
+        width: _blueLevelSlider.width
+        height: _blueLevelSlider.height
 
         anchors {
-            left: _heightSettingText.left
+            left: _redLevelText.left
 
-            top: _heightSettingText.bottom
-            topMargin: 5
-        }
-    }
-
-    // Apply button
-    AnimatedButton {
-        id: _applyButton
-
-        buttonWidth: parent.width * 0.30
-        buttonHeight: 30
-
-        buttonRadius: 5
-
-        buttonTextSize: 16
-        buttonText: qsTr("Apply")
-        buttonTextColor: "white"
-
-        getButtonColorFunc: function(containsMouse) {
-            return containsMouse ? "lightgreen" : "green"
+            top: _redLevelText.bottom
+            topMargin: 2
         }
 
-        getDynamicCursorShapeFunc: function(containsMouse) {
-            return containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
-        }
-
-        onAnimatedButtonClicked: function() {
-            let width = parseInt(_widthInputField.text)
-            let height = parseInt(_heightInputField.text)
-
-            if (virtualCameraController.SetupVideoFormat(width, height)) {
-                console.log("format setup successfully")
-            } else {
-                console.log("format setup error")
-            }
-        }
-
-        anchors {
-            horizontalCenter: parent.horizontalCenter
-
-            bottom: parent.bottom
-            bottomMargin: 10
+        onMoved: function() {
+            frameProcessingController.SetCrLevel(_redLevelSlider.value)
         }
     }
 }

@@ -618,9 +618,11 @@ Rectangle {
                 fill: parent
             }
 
+            hoverEnabled: true
+            cursorShape: containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
+
             onClicked: function() {
                 _settingsSidePanel.open()
-                console.log("settings clicked")
             }
         }
     }
