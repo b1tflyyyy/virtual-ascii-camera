@@ -22,14 +22,24 @@
 
 #include "frame-processing-controller.hpp"
 
-FrameProcessingController::FrameProcessingController(InputVideoController& input_video_controller, ASCIIConverter& ascii_converter, V4L2CXXWrapper& v4l2_cxx_wrapper, FrameProcessingModel& frame_processing_model, QObject* parent) : 
-    QObject{ parent }, mInputVideoController{ input_video_controller }, mASCIIConverter{ ascii_converter }, mV4L2CXXWrapper{ v4l2_cxx_wrapper }, mFrameProcessingModel{ frame_processing_model }, mProcessingThread{}, mBroadcastingThread{}, mDoubleBuffer{}
+FrameProcessingController::FrameProcessingController(InputVideoController& input_video_controller, ASCIIConverter& ascii_converter, V4L2CXXWrapper& v4l2_cxx_wrapper, FrameProcessingModel& frame_processing_model, QObject* parent) :                         /* ------- set neutral level -------*/
+    QObject{ parent }, mInputVideoController{ input_video_controller }, mASCIIConverter{ ascii_converter }, mV4L2CXXWrapper{ v4l2_cxx_wrapper }, mFrameProcessingModel{ frame_processing_model }, mProcessingThread{}, mBroadcastingThread{}, mDoubleBuffer{}, mCbLevel{ 128 }, mCrLevel{ 128 }
 { }
 
 FrameProcessingController::~FrameProcessingController() noexcept 
 {
     stopProcessingThread();
     stopBroadcastingThread();
+}
+
+void FrameProcessingController::SetCbLevel(const uchar cb)
+{
+    mCbLevel.store(cb, std::memory_order_relaxed);
+}
+
+void FrameProcessingController::SetCrLevel(const uchar cr)
+{
+    mCrLevel.store(cr, std::memory_order_relaxed);
 }
 
 void FrameProcessingController::StartBroadcasting()
@@ -62,7 +72,10 @@ void FrameProcessingController::processingFrame(std::stop_token stop_token)
             return;
         }
 
-        const cv::Mat2b& processed_frame{ mASCIIConverter.ProcessInputFrame(*grayscale_frame.value()) };
+        const auto cr{ mCrLevel.load(std::memory_order_relaxed) };
+        const auto cb{ mCbLevel.load(std::memory_order_relaxed) };
+
+        const cv::Mat2b& processed_frame{ mASCIIConverter.ProcessInputFrame(*grayscale_frame.value(), cr, cb) };
         mDoubleBuffer.Write(processed_frame);
     }
 }

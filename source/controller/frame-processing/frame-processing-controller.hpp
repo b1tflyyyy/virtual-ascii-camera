@@ -24,6 +24,7 @@
 
 #include <thread>
 #include <optional>
+#include <atomic>
 
 #include <QObject>
 
@@ -40,6 +41,9 @@ class FrameProcessingController : public QObject
 public:
     explicit FrameProcessingController(InputVideoController& input_video_controller, ASCIIConverter& ascii_converter, V4L2CXXWrapper& v4l2_cxx_wrapper, FrameProcessingModel& frame_processing_model, QObject* parent = nullptr);
     ~FrameProcessingController() noexcept override;
+
+    Q_INVOKABLE void SetCbLevel(const uchar cb);
+    Q_INVOKABLE void SetCrLevel(const uchar cr);
 
     Q_INVOKABLE void StartBroadcasting();
     Q_INVOKABLE void StopBroadcasting();
@@ -61,4 +65,7 @@ private:
     std::optional<std::jthread> mBroadcastingThread;
 
     DoubleBuffer<cv::Mat2b> mDoubleBuffer;
+
+    std::atomic<uchar> mCbLevel;
+    std::atomic<uchar> mCrLevel;
 };
