@@ -29,7 +29,7 @@ Dialog {
     property int textSize: 0
     property string description: ""
 
-    title: "Default"
+    title: qsTr("Default")
     standardButtons: Dialog.Ok
 
     anchors {

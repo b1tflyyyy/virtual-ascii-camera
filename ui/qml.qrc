@@ -11,5 +11,6 @@
         <file>resources/device-connected.png</file>
         <file>resources/device-disconnected.png</file>
         <file>resources/setting.png</file>
+        <file>resources/loading.png</file>
     </qresource>
 </RCC>

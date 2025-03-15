@@ -49,104 +49,104 @@ Rectangle {
     DefaultMessage {
         id: _deviceSuccessfulConnection
 
-        title: "Success"
+        title: qsTr("Success")
 
         width: parent.width * 0.60
         height: parent.height * 0.20
 
         textSize: 14
-        description: "Device connected successfully!"
+        description: qsTr("Device connected successfully!")
     }
 
     // Device connection failure message
     DefaultMessage {
         id: _deviceFailureConnection
 
-        title: "Failure"
+        title: qsTr("Failure")
 
         width: parent.width * 0.60
         height: parent.height * 0.20
 
         textSize: 14
-        description: "Device connection failed!"
+        description: qsTr("Device connection failed!")
     }
 
     // Device disconnection successful message
     DefaultMessage {
         id: _deviceSuccessfulDisconnection
 
-        title: "Success"
+        title: qsTr("Success")
 
         width: parent.width * 0.60
         height: parent.height * 0.20
 
         textSize: 14
-        description: "Device disconnected successfully!"
+        description: qsTr("Device disconnected successfully!")
     }
 
     // Device disconnection failure message
     DefaultMessage {
         id: _deviceFailureDisconnection
 
-        title: "Failure"
+        title: qsTr("Failure")
 
         width: parent.width * 0.60
         height: parent.height * 0.20
 
         textSize: 14
-        description: "Device disconnection failed!"
+        description: qsTr("Device disconnection failed!")
     }
 
     // Input device error message
     DefaultMessage {
         id: _inputDeviceError
 
-        title: "Failure"
+        title: qsTr("Failure")
 
         width: parent.width * 0.60
         height: parent.height * 0.25
 
         textSize: 14
-        description: "Input device error getting frame,\nplease check your input device and retry!"
+        description: qsTr("Input device error getting frame,\nplease check your input device and retry!")
     }    
 
     // Output device error message
     DefaultMessage {
         id: _outputDeviceError
 
-        title: "Failure"
+        title: qsTr("Failure")
 
         width: parent.width * 0.60
         height: parent.height * 0.25
 
         textSize: 14
-        description: "Output device error writing frame,\nplease check your output device and retry!"
+        description: qsTr("Output device error writing frame,\nplease check your output device and retry!")
     }
 
     // Output device error message: "The input device must be connected before the output device"
     DefaultMessage {
         id: _outputDeviceWrongOrderError
 
-        title: "Failure"
+        title: qsTr("Failure")
 
         width: parent.width * 0.60
         height: parent.height * 0.25
 
         textSize: 14
-        description: "The input device must be connected before the output device!"
+        description: qsTr("The input device must be connected before the output device!")
     }
 
     // Output device error: "Failed to set the resolution for the output device, try checking the device or restarting the program!"
     DefaultMessage {
         id: _outputDeviceSettingResolutionError
 
-        title: "Failure"
+        title: qsTr("Failure")
 
         width: parent.width * 0.60
         height: parent.height * 0.25
 
         textSize: 14
-        description: "Failed to set the resolution for the output device,\ntry checking the device or restarting the program!"
+        description: qsTr("Failed to set the resolution for the output device,\ntry checking the device or restarting the program!")
     }
 
     // Default message for dynamic creation
@@ -173,11 +173,13 @@ Rectangle {
         
         function onInputDeviceError() {
             frameProcessingController.StopBroadcasting()
+            _processingImageAnimation.running = false
             _inputDeviceError.open()
         }
 
         function onOutputDeviceError() {
             frameProcessingController.StopBroadcasting()
+            _processingImageAnimation.running = false
             _outputDeviceError.open()
         }
     }
@@ -218,7 +220,7 @@ Rectangle {
         statusWidth: 350
         statusHeight: 30
 
-        statusText: "Output Device Status"
+        statusText: qsTr("Output Device Status")
         statusTextColor: "black"
 
         textSize: 18
@@ -242,7 +244,7 @@ Rectangle {
         fieldHeight: 50
 
         textSize: 18
-        displayedPlaceholderText: "Enter the output device ..."
+        displayedPlaceholderText: qsTr("Enter the output device ...")
 
         textFieldColor: "black"
 
@@ -293,9 +295,9 @@ Rectangle {
                         let height = inputVideoController.GetVideoHeight()
 
                         if (virtualCameraController.SetupVideoResolution(width, height)) {
-                            let message = "Successfully connected to output device.\nDefault resolution: %1x%2"
+                            let message = qsTr("Successfully connected to output device.\nDefault resolution: %1x%2")
                             let successMessage = _dynamicDialogComponent.createObject(_mainPage, {
-                                title: "Success",
+                                title: qsTr("Success"),
                                 description: message.arg(width).arg(height)
                             })
 
@@ -395,7 +397,7 @@ Rectangle {
         fieldHeight: 50
 
         textSize: 18
-        displayedPlaceholderText: "Enter the input device ..."
+        displayedPlaceholderText: qsTr("Enter the input device ...")
 
         textFieldColor: "black"
 
@@ -530,6 +532,7 @@ Rectangle {
         onAnimatedButtonClicked: function() {
             if (inputVideoModel.connectionStatus && virtualCameraModel.connectionStatus && (frameProcessingModel.broadcastingState === ProcessingState.WAITING)) {
                 frameProcessingController.StartBroadcasting()
+                _processingImageAnimation.running = true
             }
         }
 
@@ -574,6 +577,7 @@ Rectangle {
         onAnimatedButtonClicked: function() {
             if (inputVideoModel.connectionStatus && virtualCameraModel.connectionStatus && (frameProcessingModel.broadcastingState === ProcessingState.BROADCASTING)) {
                 frameProcessingController.StopBroadcasting()
+                _processingImageAnimation.running = false
             }
         }
 
@@ -585,9 +589,67 @@ Rectangle {
         }
     }
 
+    Rectangle {
+        id: _broadcastingStatusContainer
+
+        width: 400
+        height: 40
+
+        color: "transparent"
+
+        anchors {
+            bottom: _startBroadcastingButton.top
+            bottomMargin: 5
+
+            left: _startBroadcastingButton.left
+        }
+
+        Text {
+            id: _broadcastingStatusText
+
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: parent.left
+            }
+
+            font {
+                pointSize: 16
+            }
+
+            text: qsTr("Broadcasting: ")
+        }
+
+        Image {
+            id: _processingImage
+
+            width: 32
+            height: 32
+
+            anchors {
+                top: _broadcastingStatusText.top
+                
+                left: _broadcastingStatusText.right 
+                leftMargin: 5
+            }
+
+            fillMode: Image.PreserveAspectFit
+            source: "qrc:/resources/loading.png"
+
+            PropertyAnimation on rotation {
+                id: _processingImageAnimation
+                
+                from: 0
+                to: 360
+
+                loops: Animation.Infinite
+                duration: 2000
+            
+                running: false
+            }
+        }
+    }
+
     // Settings side panel
-    // TODO: rewrite it, remove resolution settings
-    // ------------------------------------------->
     SettingsSidePanel {
         id: _settingsSidePanel
     }
